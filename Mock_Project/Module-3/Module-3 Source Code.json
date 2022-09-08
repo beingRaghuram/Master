@@ -1,0 +1,1315 @@
+{
+  "paragraphs": [
+    {
+      "text": "val content \u003d spark.sql(\"\"\"with base as\r\n(\r\n\tselect  \r\n\t\t*,\r\n\t\tcase when state_specific_data.email_specific_data.event_type \u003d \u0027Sent\u0027 then notification_date else null end as sent_date\r\n\tfrom\r\n\t\tegdp_prod_communications.message_state_changed_domain_event_v2 where notification_date\u003e\u003d\u00272022-07-01\u0027\r\n\t\t\t\t\t\t\r\n),\r\nwindowed as\r\n(\r\n\tselect\r\n\t\tevent_header,\r\n\t\tevent_header.event_uuid as event_uuid,\r\n\t\tstate_specific_data.email_specific_data.parallaxed_email_address AS parallaxed_email_address,\r\n\t\tstate_specific_data.email_specific_data.event_type AS event_type,\r\n\t\tnotification_id,timestamp,status,\r\n\t\tstate_specific_data,\r\n\t\tevent_timestamp,\r\n\t\tnotification_date,\r\n\t\tpartner_id,\r\n\t\tfirst_value(sent_date, true) over \r\n\t\t(partition by notification_id,state_specific_data.email_specific_data.recipient_id) as sent_date\r\n\t\tfrom base\r\n),\r\n\r\nmscde_base as\r\n(\r\n\tselect \r\n\t\tnotification_id,\r\n\t\tstate_specific_data.email_specific_data.recipient_id as recipient_id,\r\n\t\tcollect_list(distinct parallaxed_email_address) as parallaxed_email_addresses,\r\n\t\tsum(case when event_type \u003d \u0027Sent\u0027 then 1 else 0 end) as delivered_raw,\r\n\t\tsum(case when event_type \u003d \u0027Open\u0027 then 1 else 0 end) as opens_raw,\r\n\t\tsum(case when event_type \u003d \u0027Bounce\u0027 then 1 else 0 end) as bounces_raw,\r\n\t\tsum(case when event_type \u003d \u0027Click\u0027 then 1 else 0 end) as clicks_raw,\r\n\t\tsum(case when event_type \u003d \u0027Unsubscribe\u0027 then 1 else 0 end) as unsubscribes_raw,\r\n\t\tsum(case when event_type \u003d \u0027SpamComplaint\u0027 then 1 else 0 end) as SpamComplaints_raw,\r\n\t\t\r\n\t\tsum(case when event_type \u003d \u0027Sent\u0027 and first_activity_ind\u003d1 then 1 else 0 end) as delivered,\r\n\t\tsum(case when event_type \u003d \u0027Open\u0027 and first_activity_ind\u003d1 then 1 else 0 end) as opens,\r\n\t\tsum(case when event_type \u003d \u0027Bounce\u0027 and first_activity_ind\u003d1 then 1 else 0 end) as bounces,\r\n\t\tsum(case when event_type \u003d \u0027Click\u0027 and first_activity_ind\u003d1 then 1 else 0 end) as clicks,\r\n\t\tsum(case when event_type \u003d \u0027Unsubscribe\u0027 and first_activity_ind\u003d1 then 1 else 0 end) as unsubscribes,\r\n\t\tsum(case when event_type \u003d \u0027SpamComplaint\u0027 and first_activity_ind\u003d1 then 1 else 0 end) as SpamComplaints,\r\n\t\t\r\n\t\tmax(case when event_type\u003d \u0027Open\u0027 then cast(FROM_UNIXTIME(event_timestamp/1000) as timestamp) else null end) as max_timestamp_opens,\r\n\t\tmax(case when event_type\u003d \u0027Bounce\u0027 then cast(FROM_UNIXTIME(event_timestamp/1000) as timestamp) else null end) as max_timestamp_bounces,\r\n\t\tmax(case when event_type\u003d \u0027Click\u0027 then cast(FROM_UNIXTIME(event_timestamp/1000) as timestamp) else null end) as max_timestamp_clicks,\r\n\t\tmax(case when event_type\u003d \u0027Unsubscribe\u0027 then cast(FROM_UNIXTIME(event_timestamp/1000) as timestamp) else null end) as max_timestamp_unsubs,\r\n\t\tmax(case when event_type\u003d \u0027SpamComplaint\u0027 then cast(FROM_UNIXTIME(event_timestamp/1000) as timestamp) else null end) as max_timestamp_spamcomplaints,\r\n\t\tmax(cast(FROM_UNIXTIME(event_timestamp/1000) as timestamp)) as max_timestamp,\r\n\t\tmin(sent_date) as sent_date\r\n\t\t\r\n\t\tfrom \r\n\t\t(\r\n\t\t\tselect *,\r\n\t\t\trow_number() \r\n\t\t\tOVER (PARTITION BY notification_id,state_specific_data.email_specific_data.recipient_id,sent_date,event_type,date(cast(FROM_UNIXTIME(event_timestamp/1000) as timestamp))\r\n\t\t\tORDER BY cast(FROM_UNIXTIME(event_timestamp/1000) as timestamp)) AS first_activity_ind from windowed\r\n\t\t)\r\n\t\tgroup by 1,2\r\n),\r\n\r\nmessage_tracking_egdp as \r\n(\r\n    select * from egdp_prod_communications.message_tracking_domain_event_v1\r\n    where status \u003d \u0027HANDED_OFF_TO_VENDOR\u0027\r\n\r\n)\r\n\r\nselect \r\nA.notification_id,\r\nA.recipient_id,\r\nA.parallaxed_email_addresses,\r\nB.tracking_code.attribution as email_omni_code,\r\nA.delivered_raw + A.bounces_raw as attempted_raw,\r\nA.delivered_raw,\r\nA.opens_raw,\r\nA.bounces_raw,\r\nA.clicks_raw,\r\nA.unsubscribes_raw,\r\nA.SpamComplaints_raw,\r\nA.delivered + A.bounces  as attempted,\r\nA.delivered,\r\nA.opens,\r\nA.bounces,\r\nA.clicks,\r\nA.unsubscribes,\r\nA.SpamComplaints,\r\nA.max_timestamp_opens,\r\nA.max_timestamp_bounces,\r\nA.max_timestamp_clicks,\r\nA.max_timestamp_unsubs,\r\nA.max_timestamp_spamcomplaints,\r\nA.max_timestamp,\r\nA.sent_date\r\nfrom \r\nmscde_base  A \r\njoin\r\nmessage_tracking_egdp B \r\non A.recipient_id \u003d B.eg_account_id\r\nand A.notification_id \u003d B.notification_id\"\"\")",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:04:53 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {},
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "content: org.apache.spark.sql.DataFrame \u003d [notification_id: string, recipient_id: string ... 23 more fields]\n"
+          }
+        ]
+      },
+      "paragraphProgress": {
+        "jobs": [],
+        "numCompletedTasks": 0,
+        "numTasks": 0,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662620611085_-1598072820",
+      "id": "20220908-070331_1120697540_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:03:28 AM",
+      "dateSubmitted": "Sep 8, 2022 7:04:53 AM",
+      "dateStarted": "Sep 8, 2022 7:04:53 AM",
+      "dateFinished": "Sep 8, 2022 7:05:19 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "content.show()",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:06:37 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+--------------------+-----------------+--------------------------+--------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\n|     notification_id|     recipient_id|parallaxed_email_addresses|     email_omni_code|attempted_raw|delivered_raw|opens_raw|bounces_raw|clicks_raw|unsubscribes_raw|SpamComplaints_raw|attempted|delivered|opens|bounces|clicks|unsubscribes|SpamComplaints|max_timestamp_opens|max_timestamp_bounces|max_timestamp_clicks|max_timestamp_unsubs|max_timestamp_spamcomplaints|      max_timestamp| sent_date|\n+--------------------+-----------------+--------------------------+--------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\n|01caa975-eae6-495...|      egaid:bex:0|      [$parallax$h6S7qT...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-11 22:42:05|                 null|                null|                null|                        null|2022-08-11 22:42:05|2022-08-11|\n|042dc524-3da3-4b2...|      egaid:bex:0|      [$parallax$jcz6cY...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-11 01:42:53|                 null|                null|                null|                        null|2022-08-11 01:42:53|2022-08-11|\n|076e50ec-b9a1-42e...|      egaid:bex:0|      [$parallax$q1kGWr...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        0|          0|         0|               0|                 0|        1|        1|    0|      0|     0|           0|             0|               null|                 null|                null|                null|                        null|2022-08-25 00:29:35|2022-08-25|\n|3aac7589-7589-48a...|      egaid:bex:0|      [$parallax$ZI5kG/...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        0|          0|         0|               0|                 0|        1|        1|    0|      0|     0|           0|             0|               null|                 null|                null|                null|                        null|2022-09-02 14:43:10|2022-09-02|\n|5a9af396-de89-4ee...|      egaid:bex:0|      [$parallax$cFZfZO...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-17 13:57:18|                 null|                null|                null|                        null|2022-08-17 13:57:18|2022-08-17|\n|678b00c0-f1f7-48d...|      egaid:bex:0|      [$parallax$3GOZsK...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-14 17:24:57|                 null|                null|                null|                        null|2022-08-14 17:24:57|2022-08-14|\n|7c1b6188-8eab-42e...|      egaid:bex:0|      [$parallax$A9OUjz...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        0|          0|         0|               0|                 0|        1|        1|    0|      0|     0|           0|             0|               null|                 null|                null|                null|                        null|2022-08-31 03:29:06|2022-08-31|\n|7f5b6124-0713-43c...|      egaid:bex:0|      [$parallax$7sq9jU...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        0|          0|         0|               0|                 0|        1|        1|    0|      0|     0|           0|             0|               null|                 null|                null|                null|                        null|2022-08-29 04:24:26|2022-08-29|\n|7f86d565-1175-46a...|      egaid:bex:0|      [$parallax$GEo5FL...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        2|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-17 19:28:17|                 null|                null|                null|                        null|2022-08-17 19:28:17|2022-08-17|\n|888add8a-22d3-4b2...|      egaid:bex:0|      [$parallax$QdPLsV...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-17 04:57:19|                 null|                null|                null|                        null|2022-08-17 04:57:19|2022-08-16|\n|8c677744-7e07-461...|      egaid:bex:0|      [$parallax$FAvqvL...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-09-03 01:31:53|                 null|                null|                null|                        null|2022-09-03 01:31:53|2022-09-03|\n|c5223be2-e8a4-4b2...|      egaid:bex:0|      [$parallax$h6S7qT...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-11 22:42:04|                 null|                null|                null|                        null|2022-08-11 22:42:04|2022-08-11|\n|cf6439af-6b64-439...|      egaid:bex:0|      [$parallax$fVK5S4...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        0|          0|         0|               0|                 0|        1|        1|    0|      0|     0|           0|             0|               null|                 null|                null|                null|                        null|2022-08-17 22:14:03|2022-08-17|\n|ea93d2f0-b7a5-4f1...|      egaid:bex:0|      [$parallax$g4LK9u...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-11 21:51:17|                 null|                null|                null|                        null|2022-08-11 21:51:17|2022-08-11|\n|0eadc340-6178-448...|egaid:bex:0000000|      [$parallax$MN0hDG...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         2|               0|                 0|        1|        1|    1|      0|     1|           0|             0|2022-08-09 00:29:30|                 null| 2022-08-09 00:33:09|                null|                        null|2022-08-09 00:33:09|2022-08-09|\n|3531da94-695a-4c4...|egaid:bex:0000000|      [$parallax$IoeSE9...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        7|          0|         5|               0|                 0|        1|        1|    1|      0|     1|           0|             0|2022-07-20 00:55:09|                 null| 2022-07-20 00:50:13|                null|                        null|2022-07-20 00:55:09|2022-07-20|\n|452b8d06-6a56-45e...|egaid:bex:0000000|      [$parallax$zsKlIq...|EMLCID\u003dUS.LC.EVEN...|            1|            1|       10|          0|         0|               0|                 0|        1|        1|    2|      0|     0|           0|             0|2022-07-13 07:26:18|                 null|                null|                null|                        null|2022-07-13 07:26:18|2022-07-12|\n|55f8176f-9d8c-417...|egaid:bex:0000000|      [$parallax$blDK2v...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        5|          0|         3|               0|                 0|        1|        1|    3|      0|     1|           0|             0|2022-09-07 00:45:32|                 null| 2022-08-12 18:17:01|                null|                        null|2022-09-07 00:45:32|2022-08-12|\n|661ff72a-b16e-401...|egaid:bex:0000000|      [$parallax$4QbYPE...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        2|          0|         1|               0|                 0|        1|        1|    1|      0|     1|           0|             0|2022-08-15 01:01:13|                 null| 2022-08-15 01:01:15|                null|                        null|2022-08-15 01:01:15|2022-08-15|\n|819a4451-efb9-4e6...|egaid:bex:0000000|      [$parallax$tmUBmZ...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        5|          0|         1|               0|                 0|        1|        1|    5|      0|     1|           0|             0|2022-08-15 03:49:35|                 null| 2022-07-27 16:22:46|                null|                        null|2022-08-15 03:49:35|2022-07-27|\n+--------------------+-----------------+--------------------------+--------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\nonly showing top 20 rows\n\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d43\u0026clusterInst\u003d5100612"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 43,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d43\u0026clusterInst\u003d5100612",
+            "numTasks": 673,
+            "numCompletedTasks": 673,
+            "stages": [
+              {
+                "id": 81,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d81\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 78,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d78\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 68,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 68
+              },
+              {
+                "id": 82,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d82\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 4,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              },
+              {
+                "id": 83,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d83\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              },
+              {
+                "id": 79,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d79\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 80,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d80\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 673,
+        "numTasks": 673,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662620693122_-268140372",
+      "id": "20220908-070453_2125742620_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:04:53 AM",
+      "dateSubmitted": "Sep 8, 2022 7:06:37 AM",
+      "dateStarted": "Sep 8, 2022 7:06:37 AM",
+      "dateFinished": "Sep 8, 2022 7:10:55 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "// validation",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:14:13 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662620797325_798106537",
+      "id": "20220908-070637_1841575842_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:06:37 AM",
+      "dateSubmitted": "Sep 8, 2022 7:14:13 AM",
+      "dateStarted": "Sep 8, 2022 7:14:13 AM",
+      "dateFinished": "Sep 8, 2022 7:14:13 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "content.show(5,0)",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:14:29 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+------------------------------------+------------+--------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\n|notification_id                     |recipient_id|parallaxed_email_addresses                                                                                    |email_omni_code                                                                                                          |attempted_raw|delivered_raw|opens_raw|bounces_raw|clicks_raw|unsubscribes_raw|SpamComplaints_raw|attempted|delivered|opens|bounces|clicks|unsubscribes|SpamComplaints|max_timestamp_opens|max_timestamp_bounces|max_timestamp_clicks|max_timestamp_unsubs|max_timestamp_spamcomplaints|max_timestamp      |sent_date |\n+------------------------------------+------------+--------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\n|01caa975-eae6-4958-bcab-634ca6bc8be1|egaid:bex:0 |[$parallax$h6S7qTj3fCacgX3EnrAScNcFqNamAJ3JSG/cZ9ZwzWE]                                                       |EMLCID\u003dUS.LC.EVENTTRIGGERED.OMPOTPMFA.GENERIC\u0026EMLDTL\u003dDATE20220811-ISSUX.SIDX.KEYX.PAIDX.LANGEN_US.MCIDX.TESTX.VERSX.MIDSX|1            |1            |1        |0          |0         |0               |0                 |1        |1        |1    |0      |0     |0           |0             |2022-08-11 22:42:05|null                 |null                |null                |null                        |2022-08-11 22:42:05|2022-08-11|\n|042dc524-3da3-4b28-ab26-a331075566b5|egaid:bex:0 |[$parallax$jcz6cY+nvrDOVzk9C3vvLrLUCNJnDDO3lcsL220CtlU]                                                       |EMLCID\u003dUS.LC.EVENTTRIGGERED.OMPOTPMFA.GENERIC\u0026EMLDTL\u003dDATE20220811-ISSUX.SIDX.KEYX.PAIDX.LANGEN_US.MCIDX.TESTX.VERSX.MIDSX|1            |1            |1        |0          |0         |0               |0                 |1        |1        |1    |0      |0     |0           |0             |2022-08-11 01:42:53|null                 |null                |null                |null                        |2022-08-11 01:42:53|2022-08-11|\n|076e50ec-b9a1-42ee-bd57-33f057a21a33|egaid:bex:0 |[$parallax$q1kGWr/WZGwRPEnXijIhjpnMH3VZbtJdRqaPsTWPcjM]                                                       |EMLCID\u003dUS.LC.EVENTTRIGGERED.OMPOTPMFA.GENERIC\u0026EMLDTL\u003dDATE20220825-ISSUX.SIDX.KEYX.PAIDX.LANGEN_US.MCIDX.TESTX.VERSX.MIDSX|1            |1            |0        |0          |0         |0               |0                 |1        |1        |0    |0      |0     |0           |0             |null               |null                 |null                |null                |null                        |2022-08-25 00:29:35|2022-08-25|\n|3aac7589-7589-48a1-b28d-5e13b22d22a7|egaid:bex:0 |[$parallax$ZI5kG/sKvQivs1mc5g+EeAzotmwMx4XvBMbIdJaGbfY]                                                       |EMLCID\u003dUS.LC.EVENTTRIGGERED.OMPOTPMFA.GENERIC\u0026EMLDTL\u003dDATE20220902-ISSUX.SIDX.KEYX.PAIDX.LANGEN_US.MCIDX.TESTX.VERSX.MIDSX|1            |1            |0        |0          |0         |0               |0                 |1        |1        |0    |0      |0     |0           |0             |null               |null                 |null                |null                |null                        |2022-09-02 14:43:10|2022-09-02|\n|5a9af396-de89-4ee7-9434-b806a113a7a4|egaid:bex:0 |[$parallax$cFZfZOQeKVUCpEsPdLoaEltOSI/UTm6+lig0hDSzQ1Y, $parallax$ziM4hFmiz+tq7tShwJuHRPO2eXxlcyOI3UsEdq4xQUM]|EMLCID\u003dUS.LC.EVENTTRIGGERED.OMPOTPMFA.GENERIC\u0026EMLDTL\u003dDATE20220817-ISSUX.SIDX.KEYX.PAIDX.LANGEN_US.MCIDX.TESTX.VERSX.MIDSX|1            |1            |1        |0          |0         |0               |0                 |1        |1        |1    |0      |0     |0           |0             |2022-08-17 13:57:18|null                 |null                |null                |null                        |2022-08-17 13:57:18|2022-08-17|\n+------------------------------------+------------+--------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\nonly showing top 5 rows\n\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d53\u0026clusterInst\u003d5100612"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 53,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d53\u0026clusterInst\u003d5100612",
+            "numTasks": 673,
+            "numCompletedTasks": 673,
+            "stages": [
+              {
+                "id": 102,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d102\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 68,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 68
+              },
+              {
+                "id": 103,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d103\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 107,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d107\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              },
+              {
+                "id": 104,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d104\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 105,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d105\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 106,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d106\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 4,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 673,
+        "numTasks": 673,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662621182460_450688202",
+      "id": "20220908-071302_420506051_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:13:02 AM",
+      "dateSubmitted": "Sep 8, 2022 7:14:29 AM",
+      "dateStarted": "Sep 8, 2022 7:14:29 AM",
+      "dateFinished": "Sep 8, 2022 7:19:14 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "var df1 \u003d content.filter((\u0027notification_id \u003d\u003d\u003d \"01caa975-eae6-4958-bcab-634ca6bc8be1\" ||\u0027notification_id \u003d\u003d\u003d \"042dc524-3da3-4b28-ab26-a331075566b5\" ||\u0027notification_id \u003d\u003d\u003d \"076e50ec-b9a1-42ee-bd57-33f057a21a33\" ||\u0027notification_id \u003d\u003d\u003d \"5a9af396-de89-4ee7-9434-b806a113a7a4\" ||\u0027notification_id \u003d\u003d\u003d \"678b00c0-f1f7-48d3-97ae-758e967d7ecb\") \u0026\u0026 (col(\"recipient_id\") \u003d\u003d\u003d \"egaid:bex:0\"))\ndf1.show()",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:23:24 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {},
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "df1: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [notification_id: string, recipient_id: string ... 23 more fields]\n+--------------------+------------+--------------------------+--------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\n|     notification_id|recipient_id|parallaxed_email_addresses|     email_omni_code|attempted_raw|delivered_raw|opens_raw|bounces_raw|clicks_raw|unsubscribes_raw|SpamComplaints_raw|attempted|delivered|opens|bounces|clicks|unsubscribes|SpamComplaints|max_timestamp_opens|max_timestamp_bounces|max_timestamp_clicks|max_timestamp_unsubs|max_timestamp_spamcomplaints|      max_timestamp| sent_date|\n+--------------------+------------+--------------------------+--------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\n|01caa975-eae6-495...| egaid:bex:0|      [$parallax$h6S7qT...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-11 22:42:05|                 null|                null|                null|                        null|2022-08-11 22:42:05|2022-08-11|\n|042dc524-3da3-4b2...| egaid:bex:0|      [$parallax$jcz6cY...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-11 01:42:53|                 null|                null|                null|                        null|2022-08-11 01:42:53|2022-08-11|\n|076e50ec-b9a1-42e...| egaid:bex:0|      [$parallax$q1kGWr...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        0|          0|         0|               0|                 0|        1|        1|    0|      0|     0|           0|             0|               null|                 null|                null|                null|                        null|2022-08-25 00:29:35|2022-08-25|\n|5a9af396-de89-4ee...| egaid:bex:0|      [$parallax$ziM4hF...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-17 13:57:18|                 null|                null|                null|                        null|2022-08-17 13:57:18|2022-08-17|\n|678b00c0-f1f7-48d...| egaid:bex:0|      [$parallax$3GOZsK...|EMLCID\u003dUS.LC.EVEN...|            1|            1|        1|          0|         0|               0|                 0|        1|        1|    1|      0|     0|           0|             0|2022-08-14 17:24:57|                 null|                null|                null|                        null|2022-08-14 17:24:57|2022-08-14|\n+--------------------+------------+--------------------------+--------------------+-------------+-------------+---------+-----------+----------+----------------+------------------+---------+---------+-----+-------+------+------------+--------------+-------------------+---------------------+--------------------+--------------------+----------------------------+-------------------+----------+\n\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d54\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d55\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d56\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d57\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d58\u0026clusterInst\u003d5100612"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 54,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d54\u0026clusterInst\u003d5100612",
+            "numTasks": 673,
+            "numCompletedTasks": 673,
+            "stages": [
+              {
+                "id": 111,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d111\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 108,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d108\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 68,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 68
+              },
+              {
+                "id": 112,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d112\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 4,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              },
+              {
+                "id": 109,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d109\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 113,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d113\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              },
+              {
+                "id": 110,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d110\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 55,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d55\u0026clusterInst\u003d5100612",
+            "numTasks": 676,
+            "numCompletedTasks": 4,
+            "stages": [
+              {
+                "id": 119,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d119\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 4,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 56,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d56\u0026clusterInst\u003d5100612",
+            "numTasks": 692,
+            "numCompletedTasks": 20,
+            "stages": [
+              {
+                "id": 121,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d121\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 125,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d125\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 20,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 20
+              },
+              {
+                "id": 122,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d122\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 123,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d123\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 120,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d120\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 68
+              },
+              {
+                "id": 124,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d124\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 57,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d57\u0026clusterInst\u003d5100612",
+            "numTasks": 772,
+            "numCompletedTasks": 100,
+            "stages": [
+              {
+                "id": 129,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d129\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 126,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d126\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 68
+              },
+              {
+                "id": 130,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d130\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              },
+              {
+                "id": 127,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d127\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 131,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d131\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 100,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 100
+              },
+              {
+                "id": 128,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d128\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 58,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d58\u0026clusterInst\u003d5100612",
+            "numTasks": 747,
+            "numCompletedTasks": 75,
+            "stages": [
+              {
+                "id": 135,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d135\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 132,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d132\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 68
+              },
+              {
+                "id": 136,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d136\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              },
+              {
+                "id": 133,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d133\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 137,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d137\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 75,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 75
+              },
+              {
+                "id": 134,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d134\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 872,
+        "numTasks": 3560,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662621269652_1420596100",
+      "id": "20220908-071429_92845240_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:14:29 AM",
+      "dateSubmitted": "Sep 8, 2022 7:23:24 AM",
+      "dateStarted": "Sep 8, 2022 7:23:25 AM",
+      "dateFinished": "Sep 8, 2022 7:27:48 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "var df2 \u003d spark.sql(\"select * from egdp_prod_communications.message_state_changed_domain_event_v2\")\ndf2.show(1,0)",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:30:27 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {},
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "df2: org.apache.spark.sql.DataFrame \u003d [event_header: struct\u003cevent_uuid: string, published_timestamp: timestamp ... 1 more field\u003e, business_segment_id: string ... 9 more fields]\n+-------------------------------------------------------------------+---------------------+----------------------+------------------------------------+-------------+---------+-------------------+---------------+-------------------------------+-----------------+----------+\n|event_header                                                       |business_segment_id  |notification_date_hour|notification_id                     |timestamp    |status   |state_specific_data|event_timestamp|vendor_data_ingestion_timestamp|notification_date|partner_id|\n+-------------------------------------------------------------------+---------------------+----------------------+------------------------------------+-------------+---------+-------------------+---------------+-------------------------------+-----------------+----------+\n|[c7abe434-9264-4a4a-bc7e-8b7350f07088, 2022-06-17 05:33:42.278, []]|Expedia United States|2022-04-13T06         |940944d9-f8ac-4b21-8a82-c765b73015e3|1655444022278|delivered|[,,, [unseen]]     |null           |null                           |2022-04-13       |Expedia   |\n+-------------------------------------------------------------------+---------------------+----------------------+------------------------------------+-------------+---------+-------------------+---------------+-------------------------------+-----------------+----------+\nonly showing top 1 row\n\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d59\u0026clusterInst\u003d5100612"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 59,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d59\u0026clusterInst\u003d5100612",
+            "numTasks": 1,
+            "numCompletedTasks": 1,
+            "stages": [
+              {
+                "id": 138,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d138\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 1,
+        "numTasks": 1,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662621804919_1254213249",
+      "id": "20220908-072324_1812696902_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:23:24 AM",
+      "dateSubmitted": "Sep 8, 2022 7:30:27 AM",
+      "dateStarted": "Sep 8, 2022 7:30:27 AM",
+      "dateFinished": "Sep 8, 2022 7:30:49 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "var df3\u003ddf2.filter((\u0027notification_id \u003d\u003d\u003d \"01caa975-eae6-4958-bcab-634ca6bc8be1\" ||\u0027notification_id \u003d\u003d\u003d \"042dc524-3da3-4b28-ab26-a331075566b5\" ||\u0027notification_id \u003d\u003d\u003d \"076e50ec-b9a1-42ee-bd57-33f057a21a33\" ||\u0027notification_id \u003d\u003d\u003d \"5a9af396-de89-4ee7-9434-b806a113a7a4\" ||\u0027notification_id \u003d\u003d\u003d \"678b00c0-f1f7-48d3-97ae-758e967d7ecb\") \u0026\u0026 (col(\"state_specific_data.email_specific_data.recipient_id\") \u003d\u003d\u003d \"egaid:bex:0\"))\ndf3.show()",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:31:08 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {},
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "df3: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [event_header: struct\u003cevent_uuid: string, published_timestamp: timestamp ... 1 more field\u003e, business_segment_id: string ... 9 more fields]\n+--------------------+--------------------+----------------------+--------------------+----------+---------+--------------------+---------------+-------------------------------+-----------------+----------+\n|        event_header| business_segment_id|notification_date_hour|     notification_id| timestamp|   status| state_specific_data|event_timestamp|vendor_data_ingestion_timestamp|notification_date|partner_id|\n+--------------------+--------------------+----------------------+--------------------+----------+---------+--------------------+---------------+-------------------------------+-----------------+----------+\n|[69cb439d-08f2-4f...|Expedia United St...|         2022-08-17T13|5a9af396-de89-4ee...|1660744638|     read|[[$parallax$ziM4h...|  1660744638000|                  1660747923000|       2022-08-17|   Expedia|\n|[063734b3-3eda-43...|Expedia United St...|         2022-08-17T13|5a9af396-de89-4ee...|1660744616|delivered|[[$parallax$cFZfZ...|  1660744616000|                  1660750696000|       2022-08-17|   Expedia|\n|[7ba10f66-3f3c-43...|Expedia United St...|         2022-08-25T00|076e50ec-b9a1-42e...|1661387375|delivered|[[$parallax$q1kGW...|  1661387375000|                  1661392894000|       2022-08-25|   Expedia|\n|[3b5119d8-8161-46...|Expedia United St...|         2022-08-11T01|042dc524-3da3-4b2...|1660182173|     read|[[$parallax$jcz6c...|  1660182173000|                  1660187311000|       2022-08-11|   Expedia|\n|[e6497292-c34f-4b...|Expedia United St...|         2022-08-11T22|01caa975-eae6-495...|1660257725|     read|[[$parallax$h6S7q...|  1660257725000|                  1660265525000|       2022-08-11|   Expedia|\n|[02abd416-f24b-45...|Expedia United St...|         2022-08-11T01|042dc524-3da3-4b2...|1660182161|delivered|[[$parallax$jcz6c...|  1660182161000|                  1660187290000|       2022-08-11|   Expedia|\n|[965cf335-3113-46...|Expedia United St...|         2022-08-11T22|01caa975-eae6-495...|1660257706|delivered|[[$parallax$h6S7q...|  1660257706000|                  1660292990000|       2022-08-11|   Expedia|\n|[1183a250-8d3c-4e...|Expedia United St...|         2022-08-14T17|678b00c0-f1f7-48d...|1660497879|delivered|[[$parallax$3GOZs...|  1660497879000|                  1660508001000|       2022-08-14|   Expedia|\n|[78afbf7b-b92e-4f...|Expedia United St...|         2022-08-14T17|678b00c0-f1f7-48d...|1660497897|     read|[[$parallax$3GOZs...|  1660497897000|                  1660499704000|       2022-08-14|   Expedia|\n+--------------------+--------------------+----------------------+--------------------+----------+---------+--------------------+---------------+-------------------------------+-----------------+----------+\n\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d60\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d61\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d62\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d63\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d64\u0026clusterInst\u003d5100612"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 60,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d60\u0026clusterInst\u003d5100612",
+            "numTasks": 1,
+            "numCompletedTasks": 1,
+            "stages": [
+              {
+                "id": 139,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d139\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 61,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d61\u0026clusterInst\u003d5100612",
+            "numTasks": 4,
+            "numCompletedTasks": 4,
+            "stages": [
+              {
+                "id": 140,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d140\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 4,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 62,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d62\u0026clusterInst\u003d5100612",
+            "numTasks": 20,
+            "numCompletedTasks": 20,
+            "stages": [
+              {
+                "id": 141,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d141\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 20,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 20
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 63,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d63\u0026clusterInst\u003d5100612",
+            "numTasks": 100,
+            "numCompletedTasks": 100,
+            "stages": [
+              {
+                "id": 142,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d142\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 100,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 100
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 64,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d64\u0026clusterInst\u003d5100612",
+            "numTasks": 8,
+            "numCompletedTasks": 8,
+            "stages": [
+              {
+                "id": 143,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d143\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 8,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 8
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 133,
+        "numTasks": 133,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662622227455_1577742352",
+      "id": "20220908-073027_1402966219_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:30:27 AM",
+      "dateSubmitted": "Sep 8, 2022 7:31:08 AM",
+      "dateStarted": "Sep 8, 2022 7:31:08 AM",
+      "dateFinished": "Sep 8, 2022 7:34:28 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "df3.groupBy(\"status\").agg(count(\"notification_id\")).show()",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:34:33 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {},
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+---------+----------------------+\n|   status|count(notification_id)|\n+---------+----------------------+\n|     read|                     4|\n|delivered|                     5|\n+---------+----------------------+\n\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d65\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d66\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d67\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d68\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d69\u0026clusterInst\u003d5100612"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 65,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d65\u0026clusterInst\u003d5100612",
+            "numTasks": 134,
+            "numCompletedTasks": 134,
+            "stages": [
+              {
+                "id": 144,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d144\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 133,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 133
+              },
+              {
+                "id": 145,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d145\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 66,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d66\u0026clusterInst\u003d5100612",
+            "numTasks": 137,
+            "numCompletedTasks": 4,
+            "stages": [
+              {
+                "id": 147,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d147\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 4,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 4
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 67,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d67\u0026clusterInst\u003d5100612",
+            "numTasks": 153,
+            "numCompletedTasks": 20,
+            "stages": [
+              {
+                "id": 149,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d149\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 20,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 20
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 68,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d68\u0026clusterInst\u003d5100612",
+            "numTasks": 233,
+            "numCompletedTasks": 100,
+            "stages": [
+              {
+                "id": 150,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d150\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 133
+              },
+              {
+                "id": 151,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d151\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 100,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 100
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 69,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d69\u0026clusterInst\u003d5100612",
+            "numTasks": 208,
+            "numCompletedTasks": 75,
+            "stages": [
+              {
+                "id": 153,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d153\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 75,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 75
+              },
+              {
+                "id": 152,
+                "completed": false,
+                "status": "Skipped",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d152\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 133
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 333,
+        "numTasks": 865,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662622268821_-805161910",
+      "id": "20220908-073108_1188378682_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:31:08 AM",
+      "dateSubmitted": "Sep 8, 2022 7:34:33 AM",
+      "dateStarted": "Sep 8, 2022 7:34:33 AM",
+      "dateFinished": "Sep 8, 2022 7:36:27 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "var df4 \u003d spark.sql(\"select * from egdp_prod_communications.message_tracking_domain_event_v1\")\ndf4.show(1,0)",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:37:40 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {},
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "df4: org.apache.spark.sql.DataFrame \u003d [event_header: struct\u003cevent_uuid: string, published_timestamp: timestamp ... 1 more field\u003e, communication_code: string ... 11 more fields]\n+-------------------------------------------------------------------+------------------+----------------------+---------------+---------------------+------------------------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------+-------------+--------------------+-----------------------------------------------------------------------------------------+-----------------+----------+\n|event_header                                                       |communication_code|notification_date_hour|event_timestamp|business_segment_id  |notification_id                     |eg_account_id      |tracking_code                                                                                                                      |category     |status              |details                                                                                  |notification_date|partner_id|\n+-------------------------------------------------------------------+------------------+----------------------+---------------+---------------------+------------------------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------+-------------+--------------------+-----------------------------------------------------------------------------------------+-----------------+----------+\n|[80f47cad-4314-4306-b89c-f41ce7cd0041, 2022-09-05 09:21:04.112, []]|SOFTACCOUNT1      |2022-09-05T09         |1662369664098  |Expedia United States|3d2d8c44-0440-4c21-a88e-a96e13c927f8|egaid:bex:529627676|[, EMLCID\u003dUS.LC.EVENTTRIGGERED.OMPSOFTACCOUNT1.GENERIC\u0026EMLDTL\u003dDATE20220904-ISSUX.SIDX.KEYX.PAIDX.LANGEN_US.MCIDX.TESTX.VERSX.MIDSX]|TRANSACTIONAL|HANDED_OFF_TO_VENDOR|[[EMAIL, , , ], [2022-09-05T09, EMAIL, 42902613-0264-4360-b08a-12973c74da56, null, null]]|2022-09-05       |Expedia   |\n+-------------------------------------------------------------------+------------------+----------------------+---------------+---------------------+------------------------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------+-------------+--------------------+-----------------------------------------------------------------------------------------+-----------------+----------+\nonly showing top 1 row\n\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d70\u0026clusterInst\u003d5100612"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 70,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d70\u0026clusterInst\u003d5100612",
+            "numTasks": 1,
+            "numCompletedTasks": 1,
+            "stages": [
+              {
+                "id": 154,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d154\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 1,
+        "numTasks": 1,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662622473207_-2084255392",
+      "id": "20220908-073433_1676128940_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:34:33 AM",
+      "dateSubmitted": "Sep 8, 2022 7:37:40 AM",
+      "dateStarted": "Sep 8, 2022 7:37:40 AM",
+      "dateFinished": "Sep 8, 2022 7:37:48 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "var df5\u003ddf4.filter((\u0027notification_id \u003d\u003d\u003d \"01caa975-eae6-4958-bcab-634ca6bc8be1\" ||\u0027notification_id \u003d\u003d\u003d \"042dc524-3da3-4b28-ab26-a331075566b5\" ||\u0027notification_id \u003d\u003d\u003d \"076e50ec-b9a1-42ee-bd57-33f057a21a33\" ||\u0027notification_id \u003d\u003d\u003d \"5a9af396-de89-4ee7-9434-b806a113a7a4\" ||\u0027notification_id \u003d\u003d\u003d \"678b00c0-f1f7-48d3-97ae-758e967d7ecb\") \u0026\u0026(\u0027eg_account_id \u003d\u003d\u003d \"egaid:bex:0\"))\ndf5.show()",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 7:38:08 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {},
+        "editorMode": "ace/mode/scala",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "df5: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [event_header: struct\u003cevent_uuid: string, published_timestamp: timestamp ... 1 more field\u003e, communication_code: string ... 11 more fields]\n+--------------------+------------------+----------------------+---------------+--------------------+--------------------+-------------+--------------------+-------------+--------------------+--------------------+-----------------+----------+\n|        event_header|communication_code|notification_date_hour|event_timestamp| business_segment_id|     notification_id|eg_account_id|       tracking_code|     category|              status|             details|notification_date|partner_id|\n+--------------------+------------------+----------------------+---------------+--------------------+--------------------+-------------+--------------------+-------------+--------------------+--------------------+-----------------+----------+\n|[f93eaba0-8ca1-40...|            OTPMFA|         2022-08-17T13|  1660744614199|Expedia United St...|5a9af396-de89-4ee...|  egaid:bex:0|[, EMLCID\u003dUS.LC.E...|TRANSACTIONAL|HANDED_OFF_TO_VENDOR|[[EMAIL, , , ], [...|       2022-08-17|   Expedia|\n|[d907bf7a-ebd0-4b...|            OTPMFA|         2022-08-25T00|  1661387374865|Expedia United St...|076e50ec-b9a1-42e...|  egaid:bex:0|[, EMLCID\u003dUS.LC.E...|TRANSACTIONAL|HANDED_OFF_TO_VENDOR|[[EMAIL, , , ], [...|       2022-08-25|   Expedia|\n|[22d35bfe-59b8-41...|            OTPMFA|         2022-08-14T17|  1660497876148|Expedia United St...|678b00c0-f1f7-48d...|  egaid:bex:0|[, EMLCID\u003dUS.LC.E...|TRANSACTIONAL|HANDED_OFF_TO_VENDOR|[[EMAIL, , , ], [...|       2022-08-14|   Expedia|\n|[db245502-15d8-45...|            OTPMFA|         2022-08-11T22|  1660257703794|Expedia United St...|01caa975-eae6-495...|  egaid:bex:0|[, EMLCID\u003dUS.LC.E...|TRANSACTIONAL|HANDED_OFF_TO_VENDOR|[[EMAIL, , , ], [...|       2022-08-11|   Expedia|\n|[a4e32c78-9880-4c...|            OTPMFA|         2022-08-11T01|  1660182161375|Expedia United St...|042dc524-3da3-4b2...|  egaid:bex:0|[, EMLCID\u003dUS.LC.E...|TRANSACTIONAL|HANDED_OFF_TO_VENDOR|[[EMAIL, , , ], [...|       2022-08-11|   Expedia|\n+--------------------+------------------+----------------------+---------------+--------------------+--------------------+-------------+--------------------+-------------+--------------------+--------------------+-----------------+----------+\n\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d71\u0026clusterInst\u003d5100612",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d72\u0026clusterInst\u003d5100612"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 71,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d71\u0026clusterInst\u003d5100612",
+            "numTasks": 1,
+            "numCompletedTasks": 1,
+            "stages": [
+              {
+                "id": 155,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d155\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 72,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/jobs/job?spark\u003dtrue\u0026id\u003d72\u0026clusterInst\u003d5100612",
+            "numTasks": 3,
+            "numCompletedTasks": 3,
+            "stages": [
+              {
+                "id": 156,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F100.70.25.227%3A8088%2Fproxy%2Fapplication_1662609090880_0002/stages/stage/?id\u003d156\u0026attempt\u003d0\u0026clusterInst\u003d5100612",
+                "numCompleteTasks": 3,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 3
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 4,
+        "numTasks": 4,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662622660399_-465466206",
+      "id": "20220908-073740_724010843_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:37:40 AM",
+      "dateSubmitted": "Sep 8, 2022 7:38:09 AM",
+      "dateStarted": "Sep 8, 2022 7:38:09 AM",
+      "dateFinished": "Sep 8, 2022 7:38:32 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "",
+      "user": "v-netlnu@expediagroup.com",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "version": "v0",
+      "jobName": "paragraph_1662622688982_-1617632575",
+      "id": "20220908-073808_729706381_q_YSQVEJ8XKY1662620608",
+      "dateCreated": "Sep 8, 2022 7:38:08 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 1000
+    }
+  ],
+  "name": "New Project",
+  "id": "YSQVEJ8XKY1662620608",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {
+    "user_vnetlnu_expediagroup:shared_process": []
+  },
+  "config": {
+    "isZeppelinNotebookCronEnable": false,
+    "isDashboard": false,
+    "defaultLang": "spark"
+  },
+  "info": {
+    "runAllInProgress": false
+  },
+  "source": "FCN"
+}

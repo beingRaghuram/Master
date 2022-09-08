@@ -1,0 +1,571 @@
+{
+  "paragraphs": [
+    {
+      "text": "sc\nimport pyspark \nfrom pyspark import SparkContext, SparkConf\nfrom pyspark.sql import SparkSession\nsc\u003dSparkContext.getOrCreate()\nfrom pyspark.sql.functions import split\nfrom pyspark.sql import functions as F\nfrom pyspark.sql.functions import when\nfrom pyspark.sql.functions import count\nfrom pyspark.sql.functions import desc",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 6, 2022 12:50:02 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "paragraphProgress": {
+        "jobs": [],
+        "numCompletedTasks": 0,
+        "numTasks": 0,
+        "truncated": false
+      },
+      "version": "v1",
+      "jobName": "paragraph_1661752559903_1237835911",
+      "id": "20220829-055559_617065373_q_SD87FC5HWC1661752557",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": ""
+      },
+      "dateCreated": "Aug 29, 2022 5:55:57 AM",
+      "dateSubmitted": "Sep 6, 2022 12:50:02 PM",
+      "dateStarted": "Sep 6, 2022 12:50:02 PM",
+      "dateFinished": "Sep 6, 2022 12:50:04 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "def Domain_name(df1):\n    # Separating domain name from email address into new column in df2  \n    df2\u003ddf1.withColumn(\u0027Domain_name_temp\u0027, split(df1[\u0027email_address_non_pii\u0027], \u0027@\u0027).getItem(1))\n    # count of public uuid and groupby through Domain Name\n    df3\u003ddf2.groupBy(\"Domain_name_temp\").agg(count(\"public_uuid\").alias(\"Count\")).sort(desc(\"Count\"))\n    # Creating a list from Dataframe (df3) with domain names\n    list1\u003ddf3.select(df3.Domain_name_temp).rdd.flatMap(lambda x: x).collect()\n    # Creating another list with top 10 domain names\n    list2\u003dlist1[0:10]\n    print(list2)\n    # Creating new column which contains domain name in top 10 otherwise NULL\n    df4\u003ddf2.withColumn(\"Domain_Name\", F.when((df2.Domain_name_temp).isin(list2),df2.Domain_name_temp).otherwise(\"NULL\"))\n    # Deleting Domain name temp (temporary) column\n    df4\u003ddf4.drop(df4.Domain_name_temp)\n    return df4\n    \n# Reading file from S3\ndf1 \u003d spark.read.parquet(\u0027s3://ha-prod-analytics-datalake-eagle-edw-goldeneye-us-east-1/tier2_dap_marketing_email/ocelot/userprimary/date\u003d20220903/hour\u003d12/\u0027)\n# Calling Domain name and assigning into df DataFrame\ndf \u003d Domain_name(df1)\ndf.show(2,0)",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 6, 2022 12:53:46 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/jobs/job?spark\u003dtrue\u0026id\u003d15",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/jobs/job?spark\u003dtrue\u0026id\u003d16",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/jobs/job?spark\u003dtrue\u0026id\u003d17",
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/jobs/job?spark\u003dtrue\u0026id\u003d18"
+          ],
+          "interpreterSettingId": "2H51PUN6R719171652274977526"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 15,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/jobs/job?spark\u003dtrue\u0026id\u003d15",
+            "numTasks": 1,
+            "numCompletedTasks": 1,
+            "stages": [
+              {
+                "id": 28,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/stages/stage/?id\u003d28\u0026attempt\u003d0",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 16,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/jobs/job?spark\u003dtrue\u0026id\u003d16",
+            "numTasks": 500,
+            "numCompletedTasks": 500,
+            "stages": [
+              {
+                "id": 30,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/stages/stage/?id\u003d30\u0026attempt\u003d0",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              },
+              {
+                "id": 29,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/stages/stage/?id\u003d29\u0026attempt\u003d0",
+                "numCompleteTasks": 300,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 300
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 17,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/jobs/job?spark\u003dtrue\u0026id\u003d17",
+            "numTasks": 513,
+            "numCompletedTasks": 213,
+            "stages": [
+              {
+                "id": 33,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/stages/stage/?id\u003d33\u0026attempt\u003d0",
+                "numCompleteTasks": 13,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 13
+              },
+              {
+                "id": 31,
+                "completed": false,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/stages/stage/?id\u003d31\u0026attempt\u003d0",
+                "numCompleteTasks": 0,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 300
+              },
+              {
+                "id": 32,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/stages/stage/?id\u003d32\u0026attempt\u003d0",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              }
+            ],
+            "status": "Success"
+          },
+          {
+            "id": 18,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/jobs/job?spark\u003dtrue\u0026id\u003d18",
+            "numTasks": 1,
+            "numCompletedTasks": 1,
+            "stages": [
+              {
+                "id": 34,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.120.55%3A8088%2Fproxy%2Fapplication_1662464043324_0005/stages/stage/?id\u003d34\u0026attempt\u003d0",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 715,
+        "numTasks": 1015,
+        "truncated": false
+      },
+      "version": "v1",
+      "jobName": "paragraph_1661753554494_-1561021869",
+      "id": "20220829-061234_338482412_q_SD87FC5HWC1661752557",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "[u\u0027gmail.com\u0027, u\u0027hotmail.com\u0027, u\u0027yahoo.com\u0027, u\u0027aol.com\u0027, u\u0027comcast.net\u0027, u\u0027icloud.com\u0027, u\u0027hotmail.co.uk\u0027, u\u0027outlook.com\u0027, u\u0027hotmail.fr\u0027, u\u0027orange.fr\u0027]\n+------------------------------------+-----------------------------------------------------+-----------------------------------------------------+-----------------------------------------------------+-------------+-----------------------+----------------------------+-----------------+-----+----+----------+--------------------------------------------------------------------------------------------------------------------------------+----------------+---------------------+------------------+-----------------+-------------------+----------------------------------+------------------------------------+----------------------------------------+----------------------------------+---------------------------------+-------------------------------+--------------------------------+---------------------------------+------------------------------------+------------------------------+------------------------------+--------------------------------+-----------------------------------+-----------------------------+-----------------------------+-------------------------------+-------------+-----------------------------------------------+-----------------------------+---------------------------------+--------------------------------------+-----------------------------------+------------+---------------------+------------------------+------------------------+--------------------------------+--------------------------+----------------------------+------------------------------+----------------------------------------+----------------------------------+------------------------------------+------------------------------+-------------------------------------+------------------------------------+-----------------+-------------------+-------------------------+-------------------------+-------------------------+--------------------------------+-------------------------------+------------------------+------------------------------+--------------------------------+-------------------------------+--------------------------------+----------------------------------+--------------------------------+---------------+-----------------+---------------+---------------+-----------------+---------------+---------------------+--------------------+---------------+----------------------+---------------------+-------------------+-----------------------------------------------------+--------------------------------+----------------------------------+--------------------------------+-------------------------------------------------+----------------------------+------------------------------+----------------------------+------------------------------------------------+---------------------------+-----------------------------+---------------------------+-------------------------------------+----------------------------------------+---------------+------------------------------------------+---------------------------------------------+--------------------------------------+-----------------------------------------+---------------------+---------------------+---------------------+---------------------+---------------------+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+------------------------------+------------------------------+------------------------------+------------------------------+------------------------------+-------------------------------+-------------------------------+-------------------------------+-------------------------------+-------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+---------------+-----------------------+---------------------+-------------------------------+---------------+------------------------------------+-------------------------------------+------------------+-----------------------------+-----------------+-------------------------+-------------------------+-------------------------------+-------------------------------+------------------------------+------------------------------+--------------------------------+-------------------------------+------------+--------------------+----------------------------------------+----------------------------------+----------------------------------+------------------------------------+-----------------------------------------------------+--------------------------------+----------------------------------+--------------------------------+------------------------------------------+---------------------------------------------+---------------------------------------+---------------------------------+---------------------------------+-----------------------------------+----------------------------------------------------+-------------------------------+---------------------------------+-------------------------------+-----------------------------------------+--------------------------------------------+----------------------------------+----------------------------------+----------------------------------+----------------------------------+----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+-------------------------+-----+----------------------+-------------------------------------+--------------------------------------+------------------------+-------------------------+--------+-------------------------------+--------------------------------+-----------------------------------+---------------------------+------------------+-----------------+-----------+\n|public_uuid                         |first_name                                           |last_name                                            |email_address                                        |mer_status_st|last_site_activity_date|last_marketing_activity_date|is_brand_priority|eapid|tpid|locale    |encrypted_user                                                                                                                  |is_internal_user|keychain_email_bucket|last_activity_date|last_arrival_date|last_departure_date|cancelled_reservation_arrival_date|cancelled_reservation_departure_date|cancelled_reservation_listing_identifier|cancelled_reservation_booking_date|cancelled_reservation_cancel_date|cancelled_reservation_by_system|cancelled_reservation_by_partner|cancelled_reservation_by_traveler|prior_reservation_listing_identifier|prior_reservation_booking_date|prior_reservation_arrival_date|prior_reservation_departure_date|next_reservation_listing_identifier|next_reservation_booking_date|next_reservation_arrival_date|next_reservation_departure_date|total_booking|most_searched_search_term                      |booking_value_last_3_year_avg|booking_lead_days_last_3_year_avg|booking_length_of_stay_last_3_year_avg|booking_bedroom_num_last_3_year_avg|partner_flag|expedia_traveler_flag|mobile_app_last_use_date|last_inquired_event_date|last_inquired_listing_identifier|last_inquired_arrival_date|last_inquired_departure_date|last_viewed_listing_identifier|last_checkout_started_listing_identifier|last_checkout_started_arrival_date|last_checkout_started_departure_date|most_viewed_listing_identifier|second_most_viewed_listing_identifier|third_most_viewed_listing_identifier|arrival_date_mode|departure_date_mode|last_inquired_destination|last_searched_destination|most_searched_destination|second_most_searched_destination|third_most_searched_destination|last_searched_event_date|last_viewed_listing_event_date|last_checkout_started_event_date|last_booking_request_event_date|last_checkout_started_num_adults|last_checkout_started_num_children|last_checkout_started_num_guests|last_num_adults|last_num_children|last_num_guests|num_adults_mode|num_children_mode|num_guests_mode|account_creation_type|referrer_source_type|referrer_source|referrer_source_detail|referrer_device_group|referrer_event_date|cancelled_reservation_primary_market_search_term_uuid|cancelled_reservation_num_adults|cancelled_reservation_num_children|cancelled_reservation_num_guests|prior_reservation_primary_market_search_term_uuid|prior_reservation_num_adults|prior_reservation_num_children|prior_reservation_num_guests|next_reservation_primary_market_search_term_uuid|next_reservation_num_adults|next_reservation_num_children|next_reservation_num_guests|next_reservation_property_damage_date|next_reservation_traveler_insurance_date|last_event_date|cancelled_reservation_property_damage_date|cancelled_reservation_traveler_insurance_date|prior_reservation_property_damage_date|prior_reservation_traveler_insurance_date|recommended_listing_1|recommended_listing_2|recommended_listing_3|recommended_listing_4|recommended_listing_5|recommended_destination_1|recommended_destination_2|recommended_destination_3|recommended_destination_4|recommended_destination_5|next_recommended_destination_1|next_recommended_destination_2|next_recommended_destination_3|next_recommended_destination_4|next_recommended_destination_5|prior_recommended_destination_1|prior_recommended_destination_2|prior_recommended_destination_3|prior_recommended_destination_4|prior_recommended_destination_5|recommended_destination_1_listing_1|recommended_destination_1_listing_2|recommended_destination_1_listing_3|recommended_destination_1_listing_4|recommended_destination_1_listing_5|last_searched_destination_listing_1|last_searched_destination_listing_2|last_searched_destination_listing_3|last_searched_destination_listing_4|last_searched_destination_listing_5|next_recommended_destination_1_listing_1|next_recommended_destination_1_listing_2|next_recommended_destination_1_listing_3|next_recommended_destination_1_listing_4|next_recommended_destination_1_listing_5|prior_recommended_destination_1_listing_1|prior_recommended_destination_1_listing_2|prior_recommended_destination_1_listing_3|prior_recommended_destination_1_listing_4|prior_recommended_destination_1_listing_5|subscribed_date|last_activity_timestamp|next_reservation_uuid|last_system_email_activity_date|joinable_locale|origin_search_term_uuid             |origin_search_term_full_name         |last_booking_value|avg_booking_value_last_1_year|last_booking_date|total_booking_last_3_year|total_booking_last_1_year|total_inquiry_count_last_1_year|total_inquiry_count_last_30_day|total_cancellation_last_3_year|total_cancellation_last_1_year|total_system_decline_last_1_year|total_owner_decline_last_1_year|stub_account|email_address_domain|prior_gog_reservation_listing_identifier|prior_gog_reservation_booking_date|prior_gog_reservation_arrival_date|prior_gog_reservation_departure_date|prior_gog_reservation_primary_market_search_term_uuid|prior_gog_reservation_num_adults|prior_gog_reservation_num_children|prior_gog_reservation_num_guests|prior_gog_reservation_property_damage_date|prior_gog_reservation_traveler_insurance_date|next_gog_reservation_listing_identifier|next_gog_reservation_booking_date|next_gog_reservation_arrival_date|next_gog_reservation_departure_date|next_gog_reservation_primary_market_search_term_uuid|next_gog_reservation_num_adults|next_gog_reservation_num_children|next_gog_reservation_num_guests|next_gog_reservation_property_damage_date|next_gog_reservation_traveler_insurance_date|next_gog_recommended_destination_1|next_gog_recommended_destination_2|next_gog_recommended_destination_3|next_gog_recommended_destination_4|next_gog_recommended_destination_5|prior_gog_recommended_destination_1|prior_gog_recommended_destination_2|prior_gog_recommended_destination_3|prior_gog_recommended_destination_4|prior_gog_recommended_destination_5|next_gog_recommended_destination_1_listing_1|next_gog_recommended_destination_1_listing_2|next_gog_recommended_destination_1_listing_3|next_gog_recommended_destination_1_listing_4|next_gog_recommended_destination_1_listing_5|prior_gog_recommended_destination_1_listing_1|prior_gog_recommended_destination_1_listing_2|prior_gog_recommended_destination_1_listing_3|prior_gog_recommended_destination_1_listing_4|prior_gog_recommended_destination_1_listing_5|next_gog_reservation_uuid|GOG  |next_disposition_state|next_booking_request_reservation_uuid|next_booking_request_disposition_state|last_marketing_open_date|last_marketing_click_date|esp_name|last_marketing_ios_15_open_date|last_marketing_unknown_open_date|last_marketing_non_ios_15_open_date|email_address_non_pii      |first_name_non_pii|last_name_non_pii|Domain_Name|\n+------------------------------------+-----------------------------------------------------+-----------------------------------------------------+-----------------------------------------------------+-------------+-----------------------+----------------------------+-----------------+-----+----+----------+--------------------------------------------------------------------------------------------------------------------------------+----------------+---------------------+------------------+-----------------+-------------------+----------------------------------+------------------------------------+----------------------------------------+----------------------------------+---------------------------------+-------------------------------+--------------------------------+---------------------------------+------------------------------------+------------------------------+------------------------------+--------------------------------+-----------------------------------+-----------------------------+-----------------------------+-------------------------------+-------------+-----------------------------------------------+-----------------------------+---------------------------------+--------------------------------------+-----------------------------------+------------+---------------------+------------------------+------------------------+--------------------------------+--------------------------+----------------------------+------------------------------+----------------------------------------+----------------------------------+------------------------------------+------------------------------+-------------------------------------+------------------------------------+-----------------+-------------------+-------------------------+-------------------------+-------------------------+--------------------------------+-------------------------------+------------------------+------------------------------+--------------------------------+-------------------------------+--------------------------------+----------------------------------+--------------------------------+---------------+-----------------+---------------+---------------+-----------------+---------------+---------------------+--------------------+---------------+----------------------+---------------------+-------------------+-----------------------------------------------------+--------------------------------+----------------------------------+--------------------------------+-------------------------------------------------+----------------------------+------------------------------+----------------------------+------------------------------------------------+---------------------------+-----------------------------+---------------------------+-------------------------------------+----------------------------------------+---------------+------------------------------------------+---------------------------------------------+--------------------------------------+-----------------------------------------+---------------------+---------------------+---------------------+---------------------+---------------------+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+------------------------------+------------------------------+------------------------------+------------------------------+------------------------------+-------------------------------+-------------------------------+-------------------------------+-------------------------------+-------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+---------------+-----------------------+---------------------+-------------------------------+---------------+------------------------------------+-------------------------------------+------------------+-----------------------------+-----------------+-------------------------+-------------------------+-------------------------------+-------------------------------+------------------------------+------------------------------+--------------------------------+-------------------------------+------------+--------------------+----------------------------------------+----------------------------------+----------------------------------+------------------------------------+-----------------------------------------------------+--------------------------------+----------------------------------+--------------------------------+------------------------------------------+---------------------------------------------+---------------------------------------+---------------------------------+---------------------------------+-----------------------------------+----------------------------------------------------+-------------------------------+---------------------------------+-------------------------------+-----------------------------------------+--------------------------------------------+----------------------------------+----------------------------------+----------------------------------+----------------------------------+----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+-------------------------+-----+----------------------+-------------------------------------+--------------------------------------+------------------------+-------------------------+--------+-------------------------------+--------------------------------+-----------------------------------+---------------------------+------------------+-----------------+-----------+\n|0001f611-e3a1-4675-9761-86555f773eaa|$parallax$/CueVgWDtYs+8LvrISrQNu8NpUnELW42bJ1R0jSRetc|$parallax$YaD5Rb7QKgD4lhYc+8XRCyA0OaCs+vOe8TuUcLiXpJQ|$parallax$CEJpcNw4KwSO0BoMq7SzEVMTDQo+glgcFs2Dg7kDiTg|0            |null                   |2020-05-27                  |false            |28   |9007|pt_br_vrbo|bLJewSHt4HuvMeOvfXAiYSMj1tqh7Rfocd0hS5k1lQUMw9i3OpdBm6m8jMOpS|IjbI/xFzcF|y4zqzgy/2wiVwf6zbu0Y/PAxcI9jWz3dpxl4RkMRi6tnU0wNlMm11KC|false           |65                   |null              |null             |null               |null                              |null                                |null                                    |null                              |null                             |false                          |false                           |false                            |null                                |null                          |null                          |null                            |null                               |null                         |null                         |null                           |0            |null                                           |null                         |null                             |null                                  |null                               |false       |false                |null                    |null                    |null                            |null                      |null                        |null                          |null                                    |null                              |null                                |null                          |null                                 |null                                |null             |null               |null                     |null                     |null                     |null                            |null                           |null                    |null                          |null                            |null                           |null                            |null                              |null                            |null           |null             |null           |null           |null             |null           |other                |account_creation    |inquiry        |other                 |other                |2017-03-17         |null                                                 |null                            |null                              |null                            |null                                             |null                        |null                          |null                        |null                                            |null                       |null                         |null                       |null                                 |null                                    |null           |null                                      |null                                         |null                                  |null                                     |null                 |null                 |null                 |null                 |null                 |null                     |null                     |null                     |null                     |null                     |null                          |null                          |null                          |null                          |null                          |null                           |null                           |null                           |null                           |null                           |null                               |null                               |null                               |null                               |null                               |null                               |null                               |null                               |null                               |null                               |null                                    |null                                    |null                                    |null                                    |null                                    |null                                     |null                                     |null                                     |null                                     |null                                     |2017-03-17     |null                   |null                 |null                           |pt_br_vrbo     |null                                |null                                 |null              |null                         |null             |null                     |null                     |null                           |null                           |null                          |null                          |null                            |null                           |true        |gmail.com           |null                                    |null                              |null                              |null                                |null                                                 |null                            |null                              |null                            |null                                      |null                                         |null                                   |null                             |null                             |null                               |null                                                |null                           |null                             |null                           |null                                     |null                                        |null                              |null                              |null                              |null                              |null                              |null                               |null                               |null                               |null                               |null                               |null                                        |null                                        |null                                        |null                                        |null                                        |null                                         |null                                         |null                                         |null                                         |null                                         |null                     |false|null                  |null                                 |null                                  |null                    |null                     |Google  |null                           |null                            |null                               |viviane.adm.silva@gmail.com|Viviane           |Silva            |gmail.com  |\n|000243af-ef08-4f77-8013-f43124d812eb|$parallax$xTYtrjfJUIjR7ESfhGGs9vHoCAUS4AWdjUnSmChLa8Q|$parallax$hgzuoQQEtVWfDo9RJi8X4F6jI7Fcnm9TyXenZaWKyPc|$parallax$hJ4BBiJeZ46pRRVxlE+yk3JvXaU3EecXEz30CF4dSIg|1            |2021-12-13             |null                        |true             |1    |9001|en_us_vrbo|I4hgxoCVNX7ajYPvFjfpF6IvJM7gW0|mYzeWeYwtOcFHEi3Xlf1Z9Ifjj2MfQpGzAxxrl5IZBWFgoUqD63QB8cpg3ubwcvTdA|9NWJAdLgt5j8VKrpBAhNiB18uuYVHQ|false           |54                   |null              |null             |null               |null                              |null                                |null                                    |null                              |null                             |false                          |false                           |false                            |null                                |null                          |null                          |null                            |null                               |null                         |null                         |null                           |0            |Gatlinburg, Tennessee, United States of America|null                         |null                             |null                                  |null                               |false       |true                 |2018-06-26              |null                    |null                            |null                      |null                        |null                          |null                                    |null                              |null                                |null                          |null                                 |null                                |null             |null               |null                     |null                     |null                     |null                            |null                           |null                    |null                          |null                            |null                           |null                            |null                              |null                            |null           |null             |null           |null           |null             |null           |full                 |signup              |homepage       |NA                    |mobile               |2021-12-13         |null                                                 |null                            |null                              |null                            |null                                             |null                        |null                          |null                        |null                                            |null                       |null                         |null                       |null                                 |null                                    |null           |null                                      |null                                         |null                                  |null                                     |null                 |null                 |null                 |null                 |null                 |null                     |null                     |null                     |null                     |null                     |null                          |null                          |null                          |null                          |null                          |null                           |null                           |null                           |null                           |null                           |null                               |null                               |null                               |null                               |null                               |null                               |null                               |null                               |null                               |null                               |null                                    |null                                    |null                                    |null                                    |null                                    |null                                     |null                                     |null                                     |null                                     |null                                     |2021-12-13     |null                   |null                 |null                           |en_us_vrbo     |f073d9ad-dca4-4da8-8a87-79780863f179|Chattanooga, Tennessee, United States|null              |null                         |null             |null                     |null                     |null                           |null                           |null                          |null                          |null                            |null                           |false       |null                |null                                    |null                              |null                              |null                                |null                                                 |null                            |null                              |null                            |null                                      |null                                         |null                                   |null                             |null                             |null                               |null                                                |null                           |null                             |null                           |null                                     |null                                        |null                              |null                              |null                              |null                              |null                              |null                               |null                               |null                               |null                               |null                               |null                                        |null                                        |null                                        |null                                        |null                                        |null                                         |null                                         |null                                         |null                                         |null                                         |null                     |false|null                  |null                                 |null                                  |null                    |null                     |Others  |null                           |null                            |null                               |vickys@haventileco.com     |Vicky             |Spears           |NULL       |\n+------------------------------------+-----------------------------------------------------+-----------------------------------------------------+-----------------------------------------------------+-------------+-----------------------+----------------------------+-----------------+-----+----+----------+--------------------------------------------------------------------------------------------------------------------------------+----------------+---------------------+------------------+-----------------+-------------------+----------------------------------+------------------------------------+----------------------------------------+----------------------------------+---------------------------------+-------------------------------+--------------------------------+---------------------------------+------------------------------------+------------------------------+------------------------------+--------------------------------+-----------------------------------+-----------------------------+-----------------------------+-------------------------------+-------------+-----------------------------------------------+-----------------------------+---------------------------------+--------------------------------------+-----------------------------------+------------+---------------------+------------------------+------------------------+--------------------------------+--------------------------+----------------------------+------------------------------+----------------------------------------+----------------------------------+------------------------------------+------------------------------+-------------------------------------+------------------------------------+-----------------+-------------------+-------------------------+-------------------------+-------------------------+--------------------------------+-------------------------------+------------------------+------------------------------+--------------------------------+-------------------------------+--------------------------------+----------------------------------+--------------------------------+---------------+-----------------+---------------+---------------+-----------------+---------------+---------------------+--------------------+---------------+----------------------+---------------------+-------------------+-----------------------------------------------------+--------------------------------+----------------------------------+--------------------------------+-------------------------------------------------+----------------------------+------------------------------+----------------------------+------------------------------------------------+---------------------------+-----------------------------+---------------------------+-------------------------------------+----------------------------------------+---------------+------------------------------------------+---------------------------------------------+--------------------------------------+-----------------------------------------+---------------------+---------------------+---------------------+---------------------+---------------------+-------------------------+-------------------------+-------------------------+-------------------------+-------------------------+------------------------------+------------------------------+------------------------------+------------------------------+------------------------------+-------------------------------+-------------------------------+-------------------------------+-------------------------------+-------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+-----------------------------------------+---------------+-----------------------+---------------------+-------------------------------+---------------+------------------------------------+-------------------------------------+------------------+-----------------------------+-----------------+-------------------------+-------------------------+-------------------------------+-------------------------------+------------------------------+------------------------------+--------------------------------+-------------------------------+------------+--------------------+----------------------------------------+----------------------------------+----------------------------------+------------------------------------+-----------------------------------------------------+--------------------------------+----------------------------------+--------------------------------+------------------------------------------+---------------------------------------------+---------------------------------------+---------------------------------+---------------------------------+-----------------------------------+----------------------------------------------------+-------------------------------+---------------------------------+-------------------------------+-----------------------------------------+--------------------------------------------+----------------------------------+----------------------------------+----------------------------------+----------------------------------+----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+-----------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+--------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+---------------------------------------------+-------------------------+-----+----------------------+-------------------------------------+--------------------------------------+------------------------+-------------------------+--------+-------------------------------+--------------------------------+-----------------------------------+---------------------------+------------------+-----------------+-----------+\nonly showing top 2 rows\n\n"
+      },
+      "dateCreated": "Aug 29, 2022 6:12:34 AM",
+      "dateSubmitted": "Sep 6, 2022 12:53:46 PM",
+      "dateStarted": "Sep 6, 2022 12:53:46 PM",
+      "dateFinished": "Sep 6, 2022 12:55:06 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "# df.write.parquet(\u0027s3://ha-prod-omnidata-us-east-1/marketing/email/ocelot/temp/data_products/mock_training/output/{your-Name}/user_primary\u0027)\n# write.mode(SaveMode.Overwrite).parquet\n# write.mode(SaveMode.Append).parquet\n# write.mode(SaveMode.Ignore).parquet\n# write.mode(SaveMode.ErrorIfExists).parquet",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 3, 2022 9:19:45 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "version": "v1",
+      "jobName": "paragraph_1662192647213_1709419874",
+      "id": "20220903-081047_738729085_q_SD87FC5HWC1661752557",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": ""
+      },
+      "dateCreated": "Sep 3, 2022 8:10:47 AM",
+      "dateSubmitted": "Sep 3, 2022 9:19:46 AM",
+      "dateStarted": "Sep 3, 2022 9:21:04 AM",
+      "dateFinished": "Sep 3, 2022 9:21:04 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "# MODULE-4 VALIDATION ",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 3, 2022 9:19:45 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "version": "v1",
+      "jobName": "paragraph_1662192443752_1335769040",
+      "id": "20220903-080723_423197424_q_SD87FC5HWC1661752557",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": ""
+      },
+      "dateCreated": "Sep 3, 2022 8:07:23 AM",
+      "dateSubmitted": "Sep 3, 2022 9:21:04 AM",
+      "dateStarted": "Sep 3, 2022 9:21:04 AM",
+      "dateFinished": "Sep 3, 2022 9:21:04 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "# Count input data\ndf1.count()",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 3, 2022 9:19:45 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/jobs/job?spark\u003dtrue\u0026id\u003d4"
+          ],
+          "interpreterSettingId": "2H51PUN6R719171652274977526"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 4,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/jobs/job?spark\u003dtrue\u0026id\u003d4",
+            "numTasks": 301,
+            "numCompletedTasks": 301,
+            "stages": [
+              {
+                "id": 7,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/stages/stage/?id\u003d7\u0026attempt\u003d0",
+                "numCompleteTasks": 300,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 300
+              },
+              {
+                "id": 8,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/stages/stage/?id\u003d8\u0026attempt\u003d0",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 301,
+        "numTasks": 301,
+        "truncated": false
+      },
+      "version": "v1",
+      "jobName": "paragraph_1662037963305_-439276510",
+      "id": "20220901-131243_1053301648_q_SD87FC5HWC1661752557",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "106940846\n"
+      },
+      "dateCreated": "Sep 1, 2022 1:12:43 PM",
+      "dateSubmitted": "Sep 3, 2022 9:21:04 AM",
+      "dateStarted": "Sep 3, 2022 9:21:04 AM",
+      "dateFinished": "Sep 3, 2022 9:21:13 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "# count of public uuid and groupby through Domain Name\ndf.groupBy(\"Domain_Name\").agg(count(\"public_uuid\").alias(\"Count\")).sort(desc(\"Count\")).show()",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 3, 2022 9:19:45 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/jobs/job?spark\u003dtrue\u0026id\u003d5"
+          ],
+          "interpreterSettingId": "2H51PUN6R719171652274977526"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 5,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/jobs/job?spark\u003dtrue\u0026id\u003d5",
+            "numTasks": 500,
+            "numCompletedTasks": 500,
+            "stages": [
+              {
+                "id": 9,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/stages/stage/?id\u003d9\u0026attempt\u003d0",
+                "numCompleteTasks": 300,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 300
+              },
+              {
+                "id": 10,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/stages/stage/?id\u003d10\u0026attempt\u003d0",
+                "numCompleteTasks": 200,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 200
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 500,
+        "numTasks": 500,
+        "truncated": false
+      },
+      "version": "v1",
+      "jobName": "paragraph_1662191864493_1767242244",
+      "id": "20220903-075744_1701601889_q_SD87FC5HWC1661752557",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "+-------------+--------+\n|  Domain_Name|   Count|\n+-------------+--------+\n|    gmail.com|40577898|\n|         NULL|34942591|\n|  hotmail.com|11283914|\n|    yahoo.com|10338685|\n|      aol.com| 3032822|\n|  comcast.net| 1500085|\n|   icloud.com| 1243959|\n|hotmail.co.uk| 1022080|\n|  outlook.com| 1011293|\n|   hotmail.fr|  998037|\n|    orange.fr|  989482|\n+-------------+--------+\n\n"
+      },
+      "dateCreated": "Sep 3, 2022 7:57:44 AM",
+      "dateSubmitted": "Sep 3, 2022 9:21:04 AM",
+      "dateStarted": "Sep 3, 2022 9:21:13 AM",
+      "dateFinished": "Sep 3, 2022 9:21:59 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "# count output data\ndf.count()",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 3, 2022 9:19:45 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/jobs/job?spark\u003dtrue\u0026id\u003d6"
+          ],
+          "interpreterSettingId": "2H51PUN6R719171652274977526"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 6,
+            "jobUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/jobs/job?spark\u003dtrue\u0026id\u003d6",
+            "numTasks": 301,
+            "numCompletedTasks": 301,
+            "stages": [
+              {
+                "id": 12,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/stages/stage/?id\u003d12\u0026attempt\u003d0",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              },
+              {
+                "id": 11,
+                "completed": true,
+                "stageUrl": "https://us.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.120.123.70%3A8088%2Fproxy%2Fapplication_1662191260696_0006/stages/stage/?id\u003d11\u0026attempt\u003d0",
+                "numCompleteTasks": 300,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 300
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 301,
+        "numTasks": 301,
+        "truncated": false
+      },
+      "version": "v1",
+      "jobName": "paragraph_1662191828003_-1503400887",
+      "id": "20220903-075708_1934491269_q_SD87FC5HWC1661752557",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "106940846\n"
+      },
+      "dateCreated": "Sep 3, 2022 7:57:08 AM",
+      "dateSubmitted": "Sep 3, 2022 9:21:14 AM",
+      "dateStarted": "Sep 3, 2022 9:21:59 AM",
+      "dateFinished": "Sep 3, 2022 9:22:07 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 3, 2022 9:19:45 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "version": "v0",
+      "jobName": "paragraph_1662191824293_1361069999",
+      "id": "20220903-075704_1346708959_q_SD87FC5HWC1661752557",
+      "dateCreated": "Sep 3, 2022 7:57:04 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 1000
+    }
+  ],
+  "name": "New Project",
+  "id": "SD87FC5HWC1661752557",
+  "angularObjects": {
+    "2H1ZF31HH719171652274977529:shared_process": [],
+    "2H23E4QSJ719171652274977528:shared_process": [],
+    "2H51PUN6R719171652274977526:shared_process": [],
+    "2H49XD55W719171652274977529:shared_process": []
+  },
+  "config": {
+    "isDashboard": false,
+    "defaultLang": "pyspark"
+  },
+  "info": {},
+  "source": "FCN"
+}
