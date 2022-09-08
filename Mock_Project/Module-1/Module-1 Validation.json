@@ -1,0 +1,1058 @@
+{
+  "paragraphs": [
+    {
+      "text": "# MODULE-1 VALIDATION",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:15:34 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/python",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "paragraphProgress": {
+        "jobs": [],
+        "numCompletedTasks": 0,
+        "numTasks": 0,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628480530_1144425454",
+      "id": "20220908-091440_71828685_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:14:37 AM",
+      "dateSubmitted": "Sep 8, 2022 9:15:34 AM",
+      "dateStarted": "Sep 8, 2022 9:16:26 AM",
+      "dateFinished": "Sep 8, 2022 9:16:26 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n--Input table\nSELECT * FROM project_ede_obm.mock_project_email_netlnu limit 2;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:17:41 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "activityid": "string",
+                      "requestid": "string",
+                      "timestamp": "string",
+                      "correlationid": "string",
+                      "emailaddress": "string",
+                      "recipientid": "string",
+                      "ipaddress": "string",
+                      "browser": "string",
+                      "emailclient": "string",
+                      "operatingsystem": "string",
+                      "device": "string",
+                      "urlname": "string",
+                      "url": "string",
+                      "accountid": "string",
+                      "campaignid": "string",
+                      "microsite": "string",
+                      "emaildomain": "string",
+                      "cw_year": "string",
+                      "cw_month": "string",
+                      "cw_day": "string",
+                      "cw_hour": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/sql",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"activityid\",\"requestid\",\"timestamp\",\"correlationid\",\"emailaddress\",\"recipientid\",\"ipaddress\",\"browser\",\"emailclient\",\"operatingsystem\",\"device\",\"urlname\",\"url\",\"accountid\",\"campaignid\",\"microsite\",\"emaildomain\",\"cw_year\",\"cw_month\",\"cw_day\",\"cw_hour\"],[\"0004c952-1f54-5e1a-64ce-ea2037c0cfc0\",\"02-b22003-8005f149c80d474a85b7bd98d5291927\",\"2022-01-03 07:46:57\",\"1160475\",\"robh@mill-tech-ind.com\",\"CA.MR.LOYALTY.REWARDS2.0TEASER\\u0026EMLDTL\\u003dDATE20220103.SID7553268.KEY7553268010511872.PAID82436582.LANGEN_CA.MCIDC.TEST1.VERSX.MIDS1-139644_2-139657_3-139648_4-139669_5-139668\",\"40.94.37.31\",\"Google\",\"Chrome\",\"Windows\",\"pc\",\"\",\"https://www.expedia.ca/app?%7Eagency_id\\u003d1034\\u0026%7Ecustomer_campaign\\u003dBRAND\\u0026%7Ecustomer_sub_site_name\\u003dGENERIC\\u0026%243p\\u003da_custom_169006\\u0026%7Ecustomer_secondary_publisher\\u003dEXPEDIA-US\\u0026%7Ecustomer_ad_set_name\\u003dBRAND%3ADISPLAY.EOD\\u0026%7Ecustomer_ad_name\\u003dEML.US.MR.LOYALTY2LAUNCH.GENERIC\\u0026%7Ecustomer_placement\\u003dEML-LOY2APP_TIPS_BNR\\u0026%24canonical_url\\u003dhttps%3A%2F%2Fwww.expedia.ca%2Fapp%2Fmobile%2Fdeeplink%2Ftrips\\u0026%7Efeature\\u003dpaid%20advertising\\u0026EMLCID\\u003dCA.MR.LOYALTY.REWARDS2.0TEASER\\u0026EMLDTL\\u003dDATE20220103.SID7553268.KEY7553268010511872.PAID82436582.LANGEN_CA.MCIDC.TEST1.VERSX.MIDS1-139644_2-139657_3-139648_4-139669_5-139668.MOD5592-1-4-0-EMAIL-BANNER-EN-CA_S5-P1_POS10_IMG29\\u0026_branch_match_id\\u003d1006576668076670066\\u0026_branch_referrer\\u003dH4sIAAAAAAAAA41SXW%2BjOhT8Ne3LFS5fTpOV0BWJ3S57MQSwadgXywEvJYEEBWgSfv2atHu13aeVDBqPZ3TG5%2Fi179vuy8ODvLQSiLYFdXXYP%2Fx794hFKQ%2F5lVeFY%2BiWfa%2BYfOj6YyNPPBdNK6ry4CxjN0Cfjrphy7uql%2FwgGuk84wDH3ur%2BzrSt1hH8XcaN2ULXZ599Mj8eCnG68nbY1lX3Kk8O3qwx8lyNJZ%2BkolDq%2Fr3ALcCd5SIvWftuBnCI%2FtTedJj4gCWAxMAPM...\",\"null\",\"null\",\"null\",\"mill-tech-ind.com\",\"2022\",\"01\",\"03\",\"15\"],[\"000582f3-c0dc-8aa5-0f04-8e65c1abb0fa\",\"02-b22003-8301bdd8f46b491f8b47880f0565c2cd\",\"2022-01-03 07:25:25\",\"1160442\",\"siegfried.rothe@beco-bermueller.de\",\"DE.MR.LOYALTY.REWARDS2.0TEASER\\u0026EMLDTL\\u003dDATE20220103.SID7553280.KEY7553280032178916.PAID206019961.LANGDE_DE.MCIDM.TEST1.VERSX.MIDS1-139644_2-139652_3-139648_4-139653_5-139668\",\"40.94.96.26\",\"Google\",\"Chrome\",\"Windows\",\"pc\",\"\",\"https://www.expedia.de/app?%7Eagency_id\\u003d1034\\u0026%7Ecustomer_campaign\\u003dBRAND\\u0026%7Ecustomer_sub_site_name\\u003dGENERIC\\u0026%243p\\u003da_custom_169006\\u0026%7Ecustomer_secondary_publisher\\u003dEXPEDIA-DE\\u0026%7Ecustomer_ad_set_name\\u003dBRAND%3ADISPLAY.EOD\\u0026%7Ecustomer_ad_name\\u003dEML.DE.MR.LOYALTY2LAUNCH.GENERIC\\u0026%7Ecustomer_placement\\u003dEML-LOY2APP_TIPS_BNR\\u0026%24canonical_url\\u003dhttps%3A%2F%2Fwww.expedia.de%2Fapp%2Fmobile%2Fdeeplink%2Ftrips\\u0026%7Efeature\\u003dpaid%20advertising\\u0026EMLCID\\u003dDE.MR.LOYALTY.REWARDS2.0TEASER\\u0026EMLDTL\\u003dDATE20220103.SID7553280.KEY7553280032178916.PAID206019961.LANGDE_DE.MCIDM.TEST1.VERSX.MIDS1-139644_2-139652_3-139648_4-139653_5-139668.MOD5592-1-6-0-EMAIL-BANNER-DE-DE_S5-P5_POS10_LNK31\\u0026_branch_match_id\\u003d1006571253185668783\\u0026_branch_referrer\\u003dH4sIAAAAAAAAA41SbXOqOBj9Ne2XHVMSwOrOMDvYRJc2AYVAxS%2BZCFyLBGQVr%2BKv32C7d7b7aWcSeHJyzjwvJx9d155%2Bf3oqrm0BZNsCVTbV0x8Pz0TuiibrRZk70DCtR41k51N3qIujyGTdynLXOLPQ9fG3q9N5K05lV4hG1oWzID4JvZfHB2SZrSPFJ03A8dQwxt91RXZocnnsRXveqvL0URwdsl4S7LkjTL5RZa7Z3WeCewEPpou9aEndFJAA%2F5d75xFGASaAhYAGqUt5iqgb%2By9%...\",\"null\",\"null\",\"null\",\"beco-bermueller.de\",\"2022\",\"01\",\"03\",\"15\"]]}"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d0\u0026clusterInst\u003d6468244"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 0,
+            "jobUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d0\u0026clusterInst\u003d6468244",
+            "numTasks": 1,
+            "numCompletedTasks": 1,
+            "stages": [
+              {
+                "id": 0,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d0\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 1,
+        "numTasks": 1,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628534207_663378011",
+      "id": "20220908-091534_476072489_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:15:34 AM",
+      "dateSubmitted": "Sep 8, 2022 9:17:14 AM",
+      "dateStarted": "Sep 8, 2022 9:17:15 AM",
+      "dateFinished": "Sep 8, 2022 9:17:39 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n-- Output Table\nSELECT * FROM project_ede_obm.mock_project_email_netlnu_pii_restricted limit 2;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:18:43 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "activityid": "string",
+                      "requestid": "string",
+                      "timestamp": "string",
+                      "correlationid": "string",
+                      "emailaddress": "string",
+                      "recipientid": "string",
+                      "ipaddress": "string",
+                      "browser": "string",
+                      "emailclient": "string",
+                      "operatingsystem": "string",
+                      "device": "string",
+                      "urlname": "string",
+                      "url": "string",
+                      "accountid": "string",
+                      "campaignid": "string",
+                      "microsite": "string",
+                      "emaildomain": "string",
+                      "cw_year": "string",
+                      "cw_month": "string",
+                      "cw_day": "string",
+                      "cw_hour": "string",
+                      "email_address": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"activityid\",\"requestid\",\"timestamp\",\"correlationid\",\"emailaddress\",\"recipientid\",\"ipaddress\",\"browser\",\"emailclient\",\"operatingsystem\",\"device\",\"urlname\",\"url\",\"accountid\",\"campaignid\",\"microsite\",\"emaildomain\",\"cw_year\",\"cw_month\",\"cw_day\",\"cw_hour\",\"email_address\"],[\"0004c952-1f54-5e1a-64ce-ea2037c0cfc0\",\"02-b22003-8005f149c80d474a85b7bd98d5291927\",\"2022-01-03 07:46:57\",\"1160475\",\"robh@mill-tech-ind.com\",\"CA.MR.LOYALTY.REWARDS2.0TEASER\\u0026EMLDTL\\u003dDATE20220103.SID7553268.KEY7553268010511872.PAID82436582.LANGEN_CA.MCIDC.TEST1.VERSX.MIDS1-139644_2-139657_3-139648_4-139669_5-139668\",\"40.94.37.31\",\"Google\",\"Chrome\",\"Windows\",\"pc\",\"\",\"https://www.expedia.ca/app?%7Eagency_id\\u003d1034\\u0026%7Ecustomer_campaign\\u003dBRAND\\u0026%7Ecustomer_sub_site_name\\u003dGENERIC\\u0026%243p\\u003da_custom_169006\\u0026%7Ecustomer_secondary_publisher\\u003dEXPEDIA-US\\u0026%7Ecustomer_ad_set_name\\u003dBRAND%3ADISPLAY.EOD\\u0026%7Ecustomer_ad_name\\u003dEML.US.MR.LOYALTY2LAUNCH.GENERIC\\u0026%7Ecustomer_placement\\u003dEML-LOY2APP_TIPS_BNR\\u0026%24canonical_url\\u003dhttps%3A%2F%2Fwww.expedia.ca%2Fapp%2Fmobile%2Fdeeplink%2Ftrips\\u0026%7Efeature\\u003dpaid%20advertising\\u0026EMLCID\\u003dCA.MR.LOYALTY.REWARDS2.0TEASER\\u0026EMLDTL\\u003dDATE20220103.SID7553268.KEY7553268010511872.PAID82436582.LANGEN_CA.MCIDC.TEST1.VERSX.MIDS1-139644_2-139657_3-139648_4-139669_5-139668.MOD5592-1-4-0-EMAIL-BANNER-EN-CA_S5-P1_POS10_IMG29\\u0026_branch_match_id\\u003d1006576668076670066\\u0026_branch_referrer\\u003dH4sIAAAAAAAAA41SXW%2BjOhT8Ne3LFS5fTpOV0BWJ3S57MQSwadgXywEvJYEEBWgSfv2atHu13aeVDBqPZ3TG5%2Fi179vuy8ODvLQSiLYFdXXYP%2Fx794hFKQ%2F5lVeFY%2BiWfa%2BYfOj6YyNPPBdNK6ry4CxjN0Cfjrphy7uql%2FwgGuk84wDH3ur%2BzrSt1hH8XcaN2ULXZ599Mj8eCnG68nbY1lX3Kk8O3qwx8lyNJZ%2BkolDq%2Fr3ALcCd5SIvWftuBnCI%2FtTedJj4gCWAxMAPM...\",\"null\",\"null\",\"null\",\"mill-tech-ind.com\",\"2022\",\"01\",\"03\",\"15\",\"$parallax$iWUgyk1hLfPpqfkgr+lr0sez2HHdypwe2uoG5TM1in8\"],[\"000582f3-c0dc-8aa5-0f04-8e65c1abb0fa\",\"02-b22003-8301bdd8f46b491f8b47880f0565c2cd\",\"2022-01-03 07:25:25\",\"1160442\",\"siegfried.rothe@beco-bermueller.de\",\"DE.MR.LOYALTY.REWARDS2.0TEASER\\u0026EMLDTL\\u003dDATE20220103.SID7553280.KEY7553280032178916.PAID206019961.LANGDE_DE.MCIDM.TEST1.VERSX.MIDS1-139644_2-139652_3-139648_4-139653_5-139668\",\"40.94.96.26\",\"Google\",\"Chrome\",\"Windows\",\"pc\",\"\",\"https://www.expedia.de/app?%7Eagency_id\\u003d1034\\u0026%7Ecustomer_campaign\\u003dBRAND\\u0026%7Ecustomer_sub_site_name\\u003dGENERIC\\u0026%243p\\u003da_custom_169006\\u0026%7Ecustomer_secondary_publisher\\u003dEXPEDIA-DE\\u0026%7Ecustomer_ad_set_name\\u003dBRAND%3ADISPLAY.EOD\\u0026%7Ecustomer_ad_name\\u003dEML.DE.MR.LOYALTY2LAUNCH.GENERIC\\u0026%7Ecustomer_placement\\u003dEML-LOY2APP_TIPS_BNR\\u0026%24canonical_url\\u003dhttps%3A%2F%2Fwww.expedia.de%2Fapp%2Fmobile%2Fdeeplink%2Ftrips\\u0026%7Efeature\\u003dpaid%20advertising\\u0026EMLCID\\u003dDE.MR.LOYALTY.REWARDS2.0TEASER\\u0026EMLDTL\\u003dDATE20220103.SID7553280.KEY7553280032178916.PAID206019961.LANGDE_DE.MCIDM.TEST1.VERSX.MIDS1-139644_2-139652_3-139648_4-139653_5-139668.MOD5592-1-6-0-EMAIL-BANNER-DE-DE_S5-P5_POS10_LNK31\\u0026_branch_match_id\\u003d1006571253185668783\\u0026_branch_referrer\\u003dH4sIAAAAAAAAA41SbXOqOBj9Ne2XHVMSwOrOMDvYRJc2AYVAxS%2BZCFyLBGQVr%2BKv32C7d7b7aWcSeHJyzjwvJx9d155%2Bf3oqrm0BZNsCVTbV0x8Pz0TuiibrRZk70DCtR41k51N3qIujyGTdynLXOLPQ9fG3q9N5K05lV4hG1oWzID4JvZfHB2SZrSPFJ03A8dQwxt91RXZocnnsRXveqvL0URwdsl4S7LkjTL5RZa7Z3WeCewEPpou9aEndFJAA%2F5d75xFGASaAhYAGqUt5iqgb%2By9%...\",\"null\",\"null\",\"null\",\"beco-bermueller.de\",\"2022\",\"01\",\"03\",\"15\",\"$parallax$WIA7sMh1q30JHsGetjaxrqexYVLFS2hwzmruQW168ys\"]]}"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d1\u0026clusterInst\u003d6468244"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 1,
+            "jobUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d1\u0026clusterInst\u003d6468244",
+            "numTasks": 1,
+            "numCompletedTasks": 1,
+            "stages": [
+              {
+                "id": 1,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d1\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 1,
+        "numTasks": 1,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628634968_-546969345",
+      "id": "20220908-091714_1787979037_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:17:14 AM",
+      "dateSubmitted": "Sep 8, 2022 9:18:36 AM",
+      "dateStarted": "Sep 8, 2022 9:18:36 AM",
+      "dateFinished": "Sep 8, 2022 9:18:42 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n--count check for input table\n\nSELECT count(*) FROM project_ede_obm.mock_project_email_netlnu;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:20:16 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "count(1)": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"count(1)\"],[\"115256858\"]]}"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d2\u0026clusterInst\u003d6468244"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 2,
+            "jobUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d2\u0026clusterInst\u003d6468244",
+            "numTasks": 284,
+            "numCompletedTasks": 284,
+            "stages": [
+              {
+                "id": 2,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d2\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 283,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 283
+              },
+              {
+                "id": 3,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d3\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 284,
+        "numTasks": 284,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628716470_-379546075",
+      "id": "20220908-091836_2013401367_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:18:36 AM",
+      "dateSubmitted": "Sep 8, 2022 9:19:44 AM",
+      "dateStarted": "Sep 8, 2022 9:19:44 AM",
+      "dateFinished": "Sep 8, 2022 9:20:15 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n--count check for output table\n\nSELECT count(*) FROM project_ede_obm.mock_project_email_netlnu_pii_restricted;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:20:50 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "count(1)": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/sql",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"count(1)\"],[\"115256858\"]]}"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d3\u0026clusterInst\u003d6468244"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 3,
+            "jobUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d3\u0026clusterInst\u003d6468244",
+            "numTasks": 246,
+            "numCompletedTasks": 246,
+            "stages": [
+              {
+                "id": 5,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d5\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              },
+              {
+                "id": 4,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d4\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 245,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 245
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 246,
+        "numTasks": 246,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628784470_1951377258",
+      "id": "20220908-091944_762988298_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:19:44 AM",
+      "dateSubmitted": "Sep 8, 2022 9:20:39 AM",
+      "dateStarted": "Sep 8, 2022 9:20:39 AM",
+      "dateFinished": "Sep 8, 2022 9:20:49 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n--Schema check\n\nDESCRIBE project_ede_obm.mock_project_email_netlnu;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:21:06 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "col_name": "string",
+                      "data_type": "string",
+                      "comment": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"col_name\",\"data_type\",\"comment\"],[\"activityid\",\"string\",\"null\"],[\"requestid\",\"string\",\"null\"],[\"timestamp\",\"string\",\"null\"],[\"correlationid\",\"string\",\"null\"],[\"emailaddress\",\"string\",\"null\"],[\"recipientid\",\"string\",\"null\"],[\"ipaddress\",\"string\",\"null\"],[\"browser\",\"string\",\"null\"],[\"emailclient\",\"string\",\"null\"],[\"operatingsystem\",\"string\",\"null\"],[\"device\",\"string\",\"null\"],[\"urlname\",\"string\",\"null\"],[\"url\",\"string\",\"null\"],[\"accountid\",\"int\",\"null\"],[\"campaignid\",\"string\",\"null\"],[\"microsite\",\"boolean\",\"null\"],[\"emaildomain\",\"string\",\"null\"],[\"cw_year\",\"string\",\"null\"],[\"cw_month\",\"string\",\"null\"],[\"cw_day\",\"string\",\"null\"],[\"cw_hour\",\"string\",\"null\"]]}"
+          }
+        ]
+      },
+      "paragraphProgress": {
+        "jobs": [],
+        "numCompletedTasks": 0,
+        "numTasks": 0,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628839738_-242518996",
+      "id": "20220908-092039_2113607517_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:20:39 AM",
+      "dateSubmitted": "Sep 8, 2022 9:21:05 AM",
+      "dateStarted": "Sep 8, 2022 9:21:06 AM",
+      "dateFinished": "Sep 8, 2022 9:21:06 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n-- Schema Check\n\nDESCRIBE project_ede_obm.mock_project_email_netlnu_pii_restricted;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:21:18 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "col_name": "string",
+                      "data_type": "string",
+                      "comment": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/sql",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"col_name\",\"data_type\",\"comment\"],[\"activityid\",\"string\",\"null\"],[\"requestid\",\"string\",\"null\"],[\"timestamp\",\"string\",\"null\"],[\"correlationid\",\"string\",\"null\"],[\"emailaddress\",\"string\",\"null\"],[\"recipientid\",\"string\",\"null\"],[\"ipaddress\",\"string\",\"null\"],[\"browser\",\"string\",\"null\"],[\"emailclient\",\"string\",\"null\"],[\"operatingsystem\",\"string\",\"null\"],[\"device\",\"string\",\"null\"],[\"urlname\",\"string\",\"null\"],[\"url\",\"string\",\"null\"],[\"accountid\",\"int\",\"null\"],[\"campaignid\",\"string\",\"null\"],[\"microsite\",\"boolean\",\"null\"],[\"emaildomain\",\"string\",\"null\"],[\"cw_year\",\"string\",\"null\"],[\"cw_month\",\"string\",\"null\"],[\"cw_day\",\"string\",\"null\"],[\"cw_hour\",\"string\",\"null\"],[\"email_address\",\"string\",\"null\"]]}"
+          }
+        ]
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628865930_1195393159",
+      "id": "20220908-092105_1705797214_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:21:05 AM",
+      "dateSubmitted": "Sep 8, 2022 9:21:17 AM",
+      "dateStarted": "Sep 8, 2022 9:21:17 AM",
+      "dateFinished": "Sep 8, 2022 9:21:17 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n--Count_Pre_parallax\n\nSELECT count(emailaddress) as Pre_parallax\nFROM project_ede_obm.mock_project_email_netlnu\nWhere emailaddress rlike \u0027\\\\$parallax\\\\$\u0027;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:21:58 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "Pre_parallax": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/sql",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"Pre_parallax\"],[\"80729357\"]]}"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d4\u0026clusterInst\u003d6468244"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 4,
+            "jobUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d4\u0026clusterInst\u003d6468244",
+            "numTasks": 284,
+            "numCompletedTasks": 284,
+            "stages": [
+              {
+                "id": 6,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d6\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 283,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 283
+              },
+              {
+                "id": 7,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d7\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 284,
+        "numTasks": 284,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628877535_1309719857",
+      "id": "20220908-092117_307004572_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:21:17 AM",
+      "dateSubmitted": "Sep 8, 2022 9:21:34 AM",
+      "dateStarted": "Sep 8, 2022 9:21:35 AM",
+      "dateFinished": "Sep 8, 2022 9:21:57 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n--Count_NOT_@\n\nSELECT count(emailaddress) as Pre_Not\nFROM project_ede_obm.mock_project_email_netlnu\nWhere emailaddress NOT rlike \u0027.+@.+\\\\..+\u0027;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:23:13 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "Pre_Not": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/sql",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"Pre_Not\"],[\"80729357\"]]}"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d5\u0026clusterInst\u003d6468244"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 5,
+            "jobUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d5\u0026clusterInst\u003d6468244",
+            "numTasks": 284,
+            "numCompletedTasks": 284,
+            "stages": [
+              {
+                "id": 9,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d9\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              },
+              {
+                "id": 8,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d8\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 283,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 283
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 284,
+        "numTasks": 284,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628894874_-1015797529",
+      "id": "20220908-092134_332985193_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:21:34 AM",
+      "dateSubmitted": "Sep 8, 2022 9:22:02 AM",
+      "dateStarted": "Sep 8, 2022 9:22:02 AM",
+      "dateFinished": "Sep 8, 2022 9:23:12 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    },
+    {
+      "text": "%sql\n--Count_Test\n\nSELECT count(emailaddress) as Pre_Test\nFROM project_ede_obm.mock_project_email_netlnu\nWhere trim(emailaddress) rlike \u0027^(?i)test\u0027;",
+      "user": "v-netlnu@expediagroup.com",
+      "dateUpdated": "Sep 8, 2022 9:23:25 AM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "Pre_Test": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true,
+          "completionKey": "TAB"
+        },
+        "editorMode": "ace/mode/sql",
+        "hideControlBar": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "{\"exceeded\":-1,\"data\":[[\"Pre_Test\"],[\"550\"]]}"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "JOB UI",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d6\u0026clusterInst\u003d6468244"
+          ],
+          "interpreterSettingId": "user_vnetlnu_expediagroup"
+        }
+      },
+      "paragraphProgress": {
+        "jobs": [
+          {
+            "id": 6,
+            "jobUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/jobs/job?spark\u003dtrue\u0026id\u003d6\u0026clusterInst\u003d6468244",
+            "numTasks": 284,
+            "numCompletedTasks": 284,
+            "stages": [
+              {
+                "id": 10,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d10\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 283,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 283
+              },
+              {
+                "id": 11,
+                "completed": true,
+                "status": "Completed",
+                "stageUrl": "https://api.qubole.com/cluster-proxy?encodedUrl\u003dhttp%3A%2F%2F10.23.2.251%3A8088%2Fproxy%2Fapplication_1662609810526_0399/stages/stage/?id\u003d11\u0026attempt\u003d0\u0026clusterInst\u003d6468244",
+                "numCompleteTasks": 1,
+                "numActiveTasks": 0,
+                "numFailedTasks": 0,
+                "numTotalTasks": 1
+              }
+            ],
+            "status": "Success"
+          }
+        ],
+        "numCompletedTasks": 284,
+        "numTasks": 284,
+        "truncated": false
+      },
+      "apps": [],
+      "version": "v1",
+      "jobName": "paragraph_1662628922056_-75762072",
+      "id": "20220908-092202_1113302480_q_NW1ABKJJ441662628477",
+      "dateCreated": "Sep 8, 2022 9:22:02 AM",
+      "dateSubmitted": "Sep 8, 2022 9:23:16 AM",
+      "dateStarted": "Sep 8, 2022 9:23:16 AM",
+      "dateFinished": "Sep 8, 2022 9:23:24 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 1000
+    }
+  ],
+  "name": "New Project",
+  "id": "NW1ABKJJ441662628477",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {
+    "sh:shared_process": [],
+    "user_vnetlnu_expediagroup:shared_process": []
+  },
+  "config": {
+    "isZeppelinNotebookCronEnable": false,
+    "isDashboard": false,
+    "defaultLang": "pyspark"
+  },
+  "info": {
+    "runAllInProgress": false
+  },
+  "source": "FCN"
+}

@@ -1,0 +1,18 @@
+CREATE TEMPORARY FUNCTION udf_parallax AS 'com.expedia.edw.hww.etl.udf.parallax.ParallaxHiveHash' 
+USING JAR 's3://bex-analytics-softwares/gdpr_hive_udfs/gdpr-hive-udfs-hadoop.jar';
+
+
+--returns NULL for not emails, obfuscated for all except test, parallax as is
+CREATE TEMPORARY MACRO obfuscate_email(s string) 
+CASE
+    WHEN s rlike '\\$parallax\\$'  THEN s
+    WHEN s NOT rlike '.+@.+\\..+'  THEN NULL
+    WHEN trim(s) rlike '^(?i)test' THEN lower(trim(s))
+    ELSE udf_parallax(s)
+END;
+
+use project_ede_obm;
+drop table if exists project_ede_obm.mock_project_email_netlnu_pii_restricted;
+CREATE TABLE mock_project_email_netlnu_pii_restricted AS
+select *, obfuscate_email(emailaddress) as Email_Address 
+from project_ede_obm.mock_project_email_netlnu;
